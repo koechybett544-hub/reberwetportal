@@ -1,0 +1,13 @@
+{
+  "packageName": "ke.ac.reberwet.jssportal",
+  "versionCode": 1,
+  "versionName": "2.6.0",
+  "appName": "Reberwet JSS Portal",
+  "shortDescription": "Official CBC marks entry, learner attendance & assessment portal for Reberwet JSS.",
+  "fullDescription": "Reberwet Junior Secondary School Portal is the dedicated administrative and pedagogical management application for teachers, senior teachers, and administrators at Reberwet JSS.\n\nKey Capabilities:\n• CBC Marks Entry: Rapidly record formative and summative assessment marks with automated percentage calculations, 4-level competency indicators (EE, ME, AE, BE), and grade distribution summaries.\n• Daily Attendance Tracker: Streamlined morning and afternoon attendance taking with single-tap bulk marking and absence tracking.\n• Learner Directory: Complete profiles for Grade 7, Grade 8, and Grade 9 students including admission numbers, parent contacts, assessment histories, and teacher comments.\n• Instant PDF Report Cards: Generate MoE and KNEC compliant learner performance summaries with school crest, grading keys, and principal endorsements.\n• Staff Communication & Gmail Desk: Integrated school communication for parent updates, staff memos, and departmental notices.\n• Offline-First Reliability: Record marks in the classroom even without internet connectivity; all changes securely persist and synchronize automatically.\n\nDesigned specifically for educators in Kenya under the Competency-Based Curriculum (CBC) framework.",
+  "category": "EDUCATION",
+  "contentRating": "Everyone (3+)",
+  "website": "https://ais-pre-azyu2vozxqh6ytvyj4vnty-874645802870.europe-west2.run.app",
+  "email": "support@reberwet-jss.ac.ke",
+  "privacyPolicy": "https://ais-pre-azyu2vozxqh6ytvyj4vnty-874645802870.europe-west2.run.app/privacy"
+}

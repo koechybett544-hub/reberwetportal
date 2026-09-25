@@ -1,0 +1,15 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "ke.ac.reberwet.jssportal",
+      "sha256_cert_fingerprints": [
+        "14:6D:E9:7D:6D:E8:26:73:96:4D:48:FA:7E:6D:1A:18:78:E8:42:DE:BE:39:62:0F:7B:A2:44:98:98:CE:57:3E",
+        "A1:B2:C3:D4:E5:F6:07:18:29:3A:4B:5C:6D:7E:8F:90:12:34:56:78:9A:BC:DE:F0:12:34:56:78:9A:BC:DE:F0"
+      ]
+    }
+  }
+]

@@ -1,0 +1,8 @@
+{
+  "name": "final reberwet app",
+  "description": "Simplicity-first school portal for teachers and administrators featuring streamlined marks entry, attendance tracking, learner profiles, reports, and document management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

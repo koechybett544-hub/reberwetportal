@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="portal_maroon">#6B1426</color>
+    <color name="portal_maroon_dark">#540D1E</color>
+    <color name="portal_maroon_light">#8C1632</color>
+    <color name="portal_light_blue">#0284C7</color>
+    <color name="portal_background">#FCFAF8</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+</resources>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Reberwet JSS</string>
+    <string name="app_full_name">Reberwet Junior Secondary School Portal</string>
+    <string name="portal_description">Official Marks Entry, Attendance, and CBC Assessment Management for Reberwet JSS</string>
+</resources>

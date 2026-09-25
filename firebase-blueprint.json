@@ -1,0 +1,106 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Registered teacher or school administrator profile",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string", "maxLength": 100 },
+        "email": { "type": "string", "maxLength": 100 },
+        "role": { "type": "string", "enum": ["teacher", "school_admin", "super_admin"] },
+        "phone": { "type": "string", "maxLength": 30 },
+        "designation": { "type": "string", "maxLength": 100 },
+        "tscNumber": { "type": "string", "maxLength": 50 },
+        "department": { "type": "string", "maxLength": 100 },
+        "assignments": { "type": "array" }
+      },
+      "required": ["id", "name", "email", "role"]
+    },
+    "Learner": {
+      "title": "Learner",
+      "description": "Enrolled junior secondary school learner profile",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "admNo": { "type": "string", "maxLength": 20 },
+        "firstName": { "type": "string", "maxLength": 50 },
+        "lastName": { "type": "string", "maxLength": 50 },
+        "fullName": { "type": "string", "maxLength": 100 },
+        "grade": { "type": "string", "maxLength": 20 },
+        "gender": { "type": "string", "enum": ["M", "F"] },
+        "academicYear": { "type": "string", "maxLength": 10 },
+        "status": { "type": "string", "enum": ["Active", "Archived"] }
+      },
+      "required": ["id", "admNo", "firstName", "lastName", "fullName", "grade", "gender"]
+    },
+    "MarkEntry": {
+      "title": "MarkEntry",
+      "description": "Individual learner academic score and assessment record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "learnerId": { "type": "string" },
+        "admNo": { "type": "string", "maxLength": 20 },
+        "grade": { "type": "string", "maxLength": 20 },
+        "subject": { "type": "string", "maxLength": 60 },
+        "term": { "type": "string", "enum": ["Term 1", "Term 2", "Term 3"] },
+        "academicYear": { "type": "string", "maxLength": 10 },
+        "scoreOutOf100": { "type": "number" },
+        "points": { "type": "number" },
+        "assessmentLevel": { "type": "string", "maxLength": 20 }
+      },
+      "required": ["id", "learnerId", "admNo", "grade", "subject", "term", "academicYear"]
+    },
+    "AttendanceRecord": {
+      "title": "AttendanceRecord",
+      "description": "Daily attendance session record for a grade",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "date": { "type": "string", "maxLength": 15 },
+        "grade": { "type": "string", "maxLength": 20 },
+        "term": { "type": "string", "maxLength": 20 },
+        "academicYear": { "type": "string", "maxLength": 10 },
+        "submittedBy": { "type": "string", "maxLength": 100 }
+      },
+      "required": ["id", "date", "grade", "term", "academicYear", "submittedBy"]
+    },
+    "Announcement": {
+      "title": "Announcement",
+      "description": "School announcement or notice",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string", "maxLength": 200 },
+        "message": { "type": "string", "maxLength": 2000 },
+        "category": { "type": "string", "maxLength": 50 },
+        "date": { "type": "string", "maxLength": 30 },
+        "author": { "type": "string", "maxLength": 100 }
+      },
+      "required": ["id", "title", "message", "category", "date", "author"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Teacher and administrator profiles"
+    },
+    "/learners/{learnerId}": {
+      "schema": { "$ref": "#/entities/Learner" },
+      "description": "Learners directory"
+    },
+    "/marks/{markId}": {
+      "schema": { "$ref": "#/entities/MarkEntry" },
+      "description": "Academic scores and marks"
+    },
+    "/attendance/{recordId}": {
+      "schema": { "$ref": "#/entities/AttendanceRecord" },
+      "description": "Attendance registers"
+    },
+    "/announcements/{announcementId}": {
+      "schema": { "$ref": "#/entities/Announcement" },
+      "description": "School bulletin announcements"
+    }
+  }
+}

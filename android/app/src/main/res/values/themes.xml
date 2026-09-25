@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base Application Theme -->
+    <style name="Theme.ReberwetPortal" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Primary Brand Colors -->
+        <item name="colorPrimary">@color/portal_maroon</item>
+        <item name="colorPrimaryVariant">@color/portal_maroon_dark</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <!-- Secondary / Accent -->
+        <item name="colorSecondary">@color/portal_light_blue</item>
+        <item name="colorSecondaryVariant">@color/portal_light_blue</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <!-- Status Bar & Navigation Bar -->
+        <item name="android:statusBarColor">@color/portal_maroon</item>
+        <item name="android:navigationBarColor">@color/portal_background</item>
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+</resources>
