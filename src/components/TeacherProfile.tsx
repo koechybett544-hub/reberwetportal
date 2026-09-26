@@ -19,16 +19,38 @@ import {
 } from 'lucide-react';
 
 interface TeacherProfileProps {
-  currentUser: UserProfile;
+  currentUser: UserProfile | null;
   onNavigate: (view: string) => void;
   onUpdateCurrentUser?: (updated: UserProfile) => void;
+  onLogout?: () => void;
 }
 
 export const TeacherProfile: React.FC<TeacherProfileProps> = ({
   currentUser,
   onNavigate,
   onUpdateCurrentUser,
+  onLogout,
 }) => {
+  if (!currentUser) {
+    return (
+      <div className="max-w-4xl mx-auto p-4 sm:p-6 text-center space-y-4">
+        <div className="bg-white rounded-3xl p-8 border border-stone-200 shadow-xs max-w-md mx-auto">
+          <User className="w-12 h-12 text-[#6b1426] mx-auto mb-3" />
+          <h2 className="text-lg font-black text-stone-900">No Teacher Profile Active</h2>
+          <p className="text-xs text-stone-500 mt-1 mb-4">
+            Please register your account or sign in to view your official teacher credentials and timetable allocations.
+          </p>
+          <button
+            onClick={() => onNavigate('dashboard')}
+            className="px-4 py-2 bg-[#6b1426] text-white font-bold text-xs rounded-xl shadow-xs hover:bg-[#52101e] transition"
+          >
+            Go to Registration / Sign In
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(currentUser.name);
   const [email, setEmail] = useState(currentUser.email);
@@ -361,6 +383,25 @@ export const TeacherProfile: React.FC<TeacherProfileProps> = ({
                 </div>
               </div>
             </div>
+
+            {/* Device Session & Sign Out */}
+            {onLogout && (
+              <div className="bg-white rounded-2xl border border-stone-200 p-5 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div>
+                  <h4 className="font-bold text-xs text-stone-900">Sign Out of Device</h4>
+                  <p className="text-[11px] text-stone-500">
+                    Signing out will require registering or logging in again on this phone.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={onLogout}
+                  className="px-4 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-[#6b1426] border border-rose-200 font-bold text-xs transition"
+                >
+                  Log Out from Device
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}

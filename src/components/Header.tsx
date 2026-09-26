@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 
 interface HeaderProps {
-  currentUser: UserProfile;
+  currentUser: UserProfile | null;
   onSwitchUser: (user: UserProfile) => void;
   onOpenHelp: () => void;
   onOpenNotifications: () => void;
@@ -50,7 +50,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenGmail,
 }) => {
   const [roleDropdownOpen, setRoleDropdownOpen] = React.useState(false);
-  const isBrianBett = currentUser.role === 'super_admin' || currentUser.name.toLowerCase().includes('brian');
+  const isBrianBett = currentUser ? (currentUser.role === 'super_admin' || currentUser.name.toLowerCase().includes('brian')) : false;
 
   const getRoleBadge = (role: UserRole) => {
     switch (role) {
@@ -171,112 +171,122 @@ export const Header: React.FC<HeaderProps> = ({
             )}
 
             {/* User Account / Role Switcher */}
-            <div className="relative">
+            {!currentUser ? (
               <button
-                id="user-role-dropdown-btn"
-                onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
-                className="flex items-center gap-2 bg-[#540d1e] hover:bg-[#3b0a16] border border-sky-300/40 rounded-xl px-2.5 py-1.5 text-left transition"
-                title="Switch active user or role"
+                onClick={onOpenAuthModal}
+                className="flex items-center gap-1.5 bg-white text-[#6b1426] hover:bg-stone-100 rounded-xl px-3 py-1.5 text-xs font-bold transition shadow-xs active:scale-95"
               >
-                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-sky-700 text-white font-bold text-xs">
-                  {currentUser.name.charAt(0) || 'U'}
-                </div>
-                <div className="hidden lg:block">
-                  <div className="text-xs font-bold text-white leading-tight truncate max-w-[110px]">
-                    {currentUser.name}
-                  </div>
-                  <div className="text-[10px] text-sky-200 leading-none">
-                    {currentUser.role === 'teacher' ? 'Teacher' : currentUser.role === 'school_admin' ? 'Admin' : 'Head Teacher'}
-                  </div>
-                </div>
-                <ChevronDown className="w-3.5 h-3.5 text-sky-200" />
+                <LogIn className="w-3.5 h-3.5" />
+                <span>Register / Sign In</span>
               </button>
-
-              {/* Role Switcher Dropdown */}
-              {roleDropdownOpen && (
-                <>
-                  <div
-                    className="fixed inset-0 z-40"
-                    onClick={() => setRoleDropdownOpen(false)}
-                  />
-                  <div className="absolute right-0 mt-2 w-64 rounded-xl bg-white p-2 shadow-2xl border border-stone-200 text-stone-800 z-50 animate-in fade-in zoom-in-95">
-                    <div className="px-3 py-2 border-b border-stone-100 mb-1">
-                      <p className="text-[11px] font-bold text-stone-400 uppercase tracking-wider">Active Account</p>
-                      <p className="text-xs font-bold text-stone-900 truncate">{currentUser.name}</p>
-                      <div className="mt-1">{getRoleBadge(currentUser.role)}</div>
+            ) : (
+              <div className="relative">
+                <button
+                  id="user-role-dropdown-btn"
+                  onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
+                  className="flex items-center gap-2 bg-[#540d1e] hover:bg-[#3b0a16] border border-sky-300/40 rounded-xl px-2.5 py-1.5 text-left transition"
+                  title="Switch active user or role"
+                >
+                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-sky-700 text-white font-bold text-xs">
+                    {currentUser.name.charAt(0) || 'U'}
+                  </div>
+                  <div className="hidden lg:block">
+                    <div className="text-xs font-bold text-white leading-tight truncate max-w-[110px]">
+                      {currentUser.name}
                     </div>
+                    <div className="text-[10px] text-sky-200 leading-none">
+                      {currentUser.role === 'teacher' ? 'Teacher' : currentUser.role === 'school_admin' ? 'Admin' : 'Head Teacher'}
+                    </div>
+                  </div>
+                  <ChevronDown className="w-3.5 h-3.5 text-sky-200" />
+                </button>
 
-                    {/* ONLY Admin (Brian Bett) is authorized to switch accounts */}
-                    {isBrianBett ? (
-                      <>
-                        <div className="flex items-center justify-between px-3 py-1.5 text-[11px] font-semibold text-stone-500">
-                          <span>Switch Faculty Seat:</span>
-                          <span className="text-[10px] text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded font-bold border border-amber-200">Admin Only</span>
-                        </div>
-                        <div className="space-y-1 max-h-56 overflow-y-auto">
-                          {(teachers && teachers.length > 0 ? teachers : DEFAULT_USERS).map((u) => (
-                            <button
-                              key={u.id}
-                              onClick={() => {
-                                onSwitchUser(u);
-                                setRoleDropdownOpen(false);
-                              }}
-                              className={`w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition ${
-                                u.id === currentUser.id
-                                  ? 'bg-rose-50 font-bold text-rose-950 border border-rose-200'
-                                  : 'hover:bg-stone-50 text-stone-700'
-                              }`}
-                            >
-                              <div>
-                                <div className="font-semibold">{u.name}</div>
-                                <div className="text-[10px] text-stone-500">{u.designation}</div>
-                              </div>
-                              {getRoleBadge(u.role)}
-                            </button>
-                          ))}
-                        </div>
-                      </>
-                    ) : (
-                      <div className="px-3 py-2.5 bg-stone-50 rounded-lg border border-stone-200 text-xs text-stone-600 mb-1">
-                        <div className="flex items-center gap-1.5 font-bold text-stone-800 mb-1">
-                          <Lock className="w-3.5 h-3.5 text-rose-700 shrink-0" />
-                          <span>Protected Seat</span>
-                        </div>
-                        <p className="text-[11px] text-stone-500 leading-relaxed">
-                          Account switching is restricted to School Administrator (Brian Bett).
-                        </p>
+                {/* Role Switcher Dropdown */}
+                {roleDropdownOpen && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-40"
+                      onClick={() => setRoleDropdownOpen(false)}
+                    />
+                    <div className="absolute right-0 mt-2 w-64 rounded-xl bg-white p-2 shadow-2xl border border-stone-200 text-stone-800 z-50 animate-in fade-in zoom-in-95">
+                      <div className="px-3 py-2 border-b border-stone-100 mb-1">
+                        <p className="text-[11px] font-bold text-stone-400 uppercase tracking-wider">Active Account</p>
+                        <p className="text-xs font-bold text-stone-900 truncate">{currentUser.name}</p>
+                        <div className="mt-1">{getRoleBadge(currentUser.role)}</div>
                       </div>
-                    )}
 
-                    <div className="mt-2 pt-2 border-t border-stone-100 space-y-1">
-                      <button
-                        onClick={() => {
-                          onNavigate('profile');
-                          setRoleDropdownOpen(false);
-                        }}
-                        className="w-full text-left px-3 py-1.5 text-xs text-stone-700 hover:bg-stone-50 rounded-md font-medium flex items-center gap-1.5"
-                      >
-                        <User className="w-3.5 h-3.5 text-[#6b1426]" />
-                        <span>View My Profile</span>
-                      </button>
+                      {/* ONLY Admin (Brian Bett) is authorized to switch accounts */}
+                      {isBrianBett ? (
+                        <>
+                          <div className="flex items-center justify-between px-3 py-1.5 text-[11px] font-semibold text-stone-500">
+                            <span>Switch Faculty Seat:</span>
+                            <span className="text-[10px] text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded font-bold border border-amber-200">Admin Only</span>
+                          </div>
+                          <div className="space-y-1 max-h-56 overflow-y-auto">
+                            {(teachers && teachers.length > 0 ? teachers : DEFAULT_USERS).map((u) => (
+                              <button
+                                key={u.id}
+                                onClick={() => {
+                                  onSwitchUser(u);
+                                  setRoleDropdownOpen(false);
+                                }}
+                                className={`w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition ${
+                                  u.id === currentUser.id
+                                    ? 'bg-rose-50 font-bold text-rose-950 border border-rose-200'
+                                    : 'hover:bg-stone-50 text-stone-700'
+                                }`}
+                              >
+                                <div>
+                                  <div className="font-semibold">{u.name}</div>
+                                  <div className="text-[10px] text-stone-500">{u.designation}</div>
+                                </div>
+                                {getRoleBadge(u.role)}
+                              </button>
+                            ))}
+                          </div>
+                        </>
+                      ) : (
+                        <div className="px-3 py-2.5 bg-stone-50 rounded-lg border border-stone-200 text-xs text-stone-600 mb-1">
+                          <div className="flex items-center gap-1.5 font-bold text-stone-800 mb-1">
+                            <Lock className="w-3.5 h-3.5 text-rose-700 shrink-0" />
+                            <span>Protected Seat</span>
+                          </div>
+                          <p className="text-[11px] text-stone-500 leading-relaxed">
+                            Account switching is restricted to School Administrator (Brian Bett).
+                          </p>
+                        </div>
+                      )}
 
-                      {onOpenAuthModal && (
+                      <div className="mt-2 pt-2 border-t border-stone-100 space-y-1">
                         <button
                           onClick={() => {
-                            onOpenAuthModal();
+                            onNavigate('profile');
                             setRoleDropdownOpen(false);
                           }}
-                          className="w-full text-left px-3 py-1.5 text-xs text-[#6b1426] hover:bg-rose-50 rounded-md font-bold flex items-center gap-1.5"
+                          className="w-full text-left px-3 py-1.5 text-xs text-stone-700 hover:bg-stone-50 rounded-md font-medium flex items-center gap-1.5"
                         >
-                          <LogIn className="w-3.5 h-3.5" />
-                          <span>Create Account / Log In</span>
+                          <User className="w-3.5 h-3.5 text-[#6b1426]" />
+                          <span>View My Profile</span>
                         </button>
-                      )}
+
+                        {onOpenAuthModal && (
+                          <button
+                            onClick={() => {
+                              onOpenAuthModal();
+                              setRoleDropdownOpen(false);
+                            }}
+                            className="w-full text-left px-3 py-1.5 text-xs text-[#6b1426] hover:bg-rose-50 rounded-md font-bold flex items-center gap-1.5"
+                          >
+                            <LogIn className="w-3.5 h-3.5" />
+                            <span>Create Account / Log In</span>
+                          </button>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </>
-              )}
-            </div>
+                  </>
+                )}
+              </div>
+            )}
           </div>
         </div>
 

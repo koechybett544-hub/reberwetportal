@@ -30,11 +30,13 @@ import {
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  currentUser: UserProfile;
+  currentUser?: UserProfile | null;
   teachers: UserProfile[];
   onLoginSuccess: (user: UserProfile) => void;
   onLogout: () => void;
   onShowSuccessToast: (msg: string) => void;
+  canClose?: boolean;
+  defaultMode?: 'signup' | 'login';
 }
 
 const MAX_TEACHERS = 15;
@@ -42,17 +44,22 @@ const MAX_TEACHERS = 15;
 export const AuthModal: React.FC<AuthModalProps> = ({
   isOpen,
   onClose,
+  currentUser,
   teachers,
   onLoginSuccess,
   onShowSuccessToast,
+  canClose = true,
+  defaultMode,
 }) => {
   // Modes: 'signup' (create account) | 'login' (sign in)
   const [authMode, setAuthMode] = useState<'signup' | 'login'>(() => {
+    if (defaultMode) return defaultMode;
+    if (!currentUser) return 'signup';
     try {
       const hasSignedUp = localStorage.getItem('reberwet_has_signed_up');
       return hasSignedUp ? 'login' : 'signup';
     } catch {
-      return 'login';
+      return 'signup';
     }
   });
   // Steps: 'form' | 'verify' | 'success'
@@ -454,7 +461,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     try {
       const res = await signInWithGoogle();
       if (!res || !res.user) {
-        throw new Error('Google authentication cancelled or failed.');
+        // User closed or dismissed the Google popup window
+        return;
       }
 
       const gUser = res.user;
@@ -500,6 +508,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       );
       onClose();
     } catch (error: any) {
+      if (
+        error?.code === 'auth/popup-closed-by-user' ||
+        error?.code === 'auth/cancelled-popup-request'
+      ) {
+        // User closed or dismissed the popup window, no error notification needed
+        return;
+      }
+      if (error?.code === 'auth/popup-blocked') {
+        setVerificationError(
+          'Sign-in popup was blocked by your browser. Please allow popups for this site or log in with your username and password.'
+        );
+        return;
+      }
       console.error('Google Auth Error:', error);
       setVerificationError(
         error.message || 'Failed to authenticate with Google. Please try again.'
@@ -613,12 +634,27 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     <div className="fixed inset-0 z-50 bg-black/65 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
       <div className="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-7 shadow-2xl space-y-4 border border-stone-200 relative overflow-hidden my-auto animate-in fade-in zoom-in-95">
         {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 p-2 text-stone-400 hover:text-stone-700 rounded-full hover:bg-stone-100 transition"
-        >
-          <X className="w-5 h-5" />
-        </button>
+        {canClose && (
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 p-2 text-stone-400 hover:text-stone-700 rounded-full hover:bg-stone-100 transition"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        )}
+
+        {/* New Device Access Notice */}
+        {!canClose && (
+          <div className="p-3 bg-rose-50 border border-rose-200 rounded-2xl flex items-center gap-2.5 text-xs text-[#6b1426]">
+            <ShieldCheck className="w-5 h-5 shrink-0 text-[#6b1426]" />
+            <div>
+              <p className="font-extrabold text-stone-900">New Device / Shared App Access</p>
+              <p className="text-[11px] text-stone-600 mt-0.5">
+                Welcome to Reberwet JSS! Please register your teacher profile or sign in to activate the portal on this phone.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Modal Top Header */}
         <div className="text-center space-y-1 pt-1">

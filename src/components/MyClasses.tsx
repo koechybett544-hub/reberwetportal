@@ -11,9 +11,8 @@ import {
 
 interface MyClassesProps {
   learners: Learner[];
-  currentUser: UserProfile;
+  currentUser?: UserProfile | null;
   onNavigateToMarksWithClass: (grade: string, stream: string) => void;
-  onNavigateToAttendanceWithClass: (grade: string, stream: string) => void;
   onViewLearnersWithFilter: (grade: string, stream: string) => void;
   onNavigateToPrintSheet: (grade: string, stream: string) => void;
 }
@@ -22,7 +21,6 @@ export const MyClasses: React.FC<MyClassesProps> = ({
   learners,
   currentUser,
   onNavigateToMarksWithClass,
-  onNavigateToAttendanceWithClass,
   onViewLearnersWithFilter,
   onNavigateToPrintSheet,
 }) => {
@@ -111,15 +109,6 @@ export const MyClasses: React.FC<MyClassesProps> = ({
                 >
                   <BookOpen className="w-3.5 h-3.5" />
                   <span>Enter Marks</span>
-                </button>
-
-                <button
-                  onClick={() => onNavigateToAttendanceWithClass(cls.grade, '')}
-                  className="py-2 px-2.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-900 font-bold text-xs border border-sky-200 flex items-center justify-center gap-1 transition"
-                  title="Take Attendance"
-                >
-                  <CheckSquare className="w-3.5 h-3.5" />
-                  <span>Attendance</span>
                 </button>
 
                 <button

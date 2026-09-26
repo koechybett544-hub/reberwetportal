@@ -22,19 +22,13 @@ const STEPS = [
     view: 'marks',
   },
   {
-    title: '3. Record Daily Attendance',
-    desc: 'Use the 1-click “MARK ALL PRESENT” button, then adjust only absent or late learners in seconds.',
-    icon: Calendar,
-    view: 'attendance',
-  },
-  {
-    title: '4. View Learner Reports & Progress',
+    title: '3. View Learner Reports & Progress',
     desc: 'Check current-term, previous-term, and previous-year performance without complicated menus or rankings.',
     icon: Award,
     view: 'learners',
   },
   {
-    title: '5. Check School Announcements',
+    title: '4. Check School Announcements',
     desc: 'Stay informed on marks submission deadlines, staff meetings, and administrative notices right from your dashboard.',
     icon: Megaphone,
     view: 'announcements',

@@ -13,7 +13,7 @@ export const TeacherHelpModal: React.FC<TeacherHelpModalProps> = ({
   onClose,
   defaultTab = 'marks',
 }) => {
-  const [activeTab, setActiveTab] = useState<'marks' | 'attendance' | 'reports' | 'levels'>(defaultTab);
+  const [activeTab, setActiveTab] = useState<'marks' | 'reports' | 'levels'>(defaultTab === 'attendance' ? 'marks' : defaultTab);
 
   if (!isOpen) return null;
 
@@ -56,18 +56,6 @@ export const TeacherHelpModal: React.FC<TeacherHelpModalProps> = ({
           >
             <BookOpen className="w-3.5 h-3.5" />
             <span>How to Enter Marks</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('attendance')}
-            className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-t-lg transition border-b-2 ${
-              activeTab === 'attendance'
-                ? 'border-orange-700 bg-white text-orange-900 shadow-xs'
-                : 'border-transparent text-stone-600 hover:text-stone-900'
-            }`}
-          >
-            <CheckSquare className="w-3.5 h-3.5" />
-            <span>How to Take Attendance</span>
           </button>
 
           <button
@@ -156,45 +144,6 @@ export const TeacherHelpModal: React.FC<TeacherHelpModalProps> = ({
                   </div>
                 </li>
               </ol>
-            </div>
-          )}
-
-          {activeTab === 'attendance' && (
-            <div className="space-y-4">
-              <div className="rounded-xl bg-amber-50 border border-amber-200 p-3.5">
-                <h4 className="text-sm font-semibold text-amber-900 mb-1">Fast Attendance Recording</h4>
-                <p className="text-xs text-amber-900">
-                  Instead of clicking every learner one by one, use the <strong>MARK ALL PRESENT</strong> shortcut!
-                </p>
-              </div>
-
-              <div className="space-y-2.5">
-                <div className="p-3 bg-stone-50 rounded-xl border border-stone-200">
-                  <h5 className="text-xs font-bold text-stone-900 uppercase tracking-wide mb-1">Step 1: Choose Class &amp; Date</h5>
-                  <p className="text-xs text-stone-600">Select your assigned class and today&apos;s date (defaults to today).</p>
-                </div>
-
-                <div className="p-3 bg-stone-50 rounded-xl border border-stone-200">
-                  <h5 className="text-xs font-bold text-stone-900 uppercase tracking-wide mb-1">Step 2: One-Click Quick Fill</h5>
-                  <p className="text-xs text-stone-600">
-                    Tap <strong>MARK ALL PRESENT</strong>. All learners will turn green (Present).
-                  </p>
-                </div>
-
-                <div className="p-3 bg-stone-50 rounded-xl border border-stone-200">
-                  <h5 className="text-xs font-bold text-stone-900 uppercase tracking-wide mb-1">Step 3: Toggle Only Absent or Late</h5>
-                  <p className="text-xs text-stone-600">
-                    Simply tap <strong>Absent</strong> or <strong>Late</strong> for the few learners who are away or late.
-                  </p>
-                </div>
-
-                <div className="p-3 bg-stone-50 rounded-xl border border-stone-200">
-                  <h5 className="text-xs font-bold text-stone-900 uppercase tracking-wide mb-1">Step 4: Save Attendance</h5>
-                  <p className="text-xs text-stone-600">
-                    Tap <strong>Save Attendance</strong>. Attendance rates update automatically in learner profiles and term reports.
-                  </p>
-                </div>
-              </div>
             </div>
           )}
 

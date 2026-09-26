@@ -17,7 +17,6 @@ import {
   FileSpreadsheet,
   ArrowUpRight,
   TrendingUp,
-  LayoutGrid,
   List,
   Phone,
   UserCheck,
@@ -26,6 +25,7 @@ import {
   Clock,
   Sparkles,
   Award,
+  BookOpen,
 } from 'lucide-react';
 
 interface LearnerDirectoryProps {
@@ -53,7 +53,6 @@ export const LearnerDirectory: React.FC<LearnerDirectoryProps> = ({
   const [selectedGender, setSelectedGender] = useState<'all' | 'M' | 'F'>('all');
   const [selectedYear, setSelectedYear] = useState<string>('2026');
   const [selectedTerm, setSelectedTerm] = useState<'Term 1' | 'Term 2' | 'Term 3'>('Term 3');
-  const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
 
   // Modals
   const [showAddModal, setShowAddModal] = useState(false);
@@ -113,12 +112,8 @@ export const LearnerDirectory: React.FC<LearnerDirectoryProps> = ({
     const g9 = learners.filter((l) => l.grade === 'Grade 9').length;
     const boys = learners.filter((l) => l.gender === 'M').length;
     const girls = learners.filter((l) => l.gender === 'F').length;
-    const avgAttendance =
-      total > 0
-        ? Math.round(learners.reduce((acc, curr) => acc + (curr.attendanceRate || 0), 0) / total)
-        : 0;
 
-    return { total, g7, g8, g9, boys, girls, avgAttendance };
+    return { total, g7, g8, g9, boys, girls };
   }, [learners]);
 
   // Handle Add Learner
@@ -362,7 +357,7 @@ export const LearnerDirectory: React.FC<LearnerDirectoryProps> = ({
         </div>
 
         {/* Quick KPI Stats Summary Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5 mt-6 pt-5 border-t border-white/10 text-center">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 mt-6 pt-5 border-t border-white/10 text-center">
           <div className="bg-white/10 backdrop-blur-xs p-2.5 rounded-2xl border border-white/15">
             <span className="text-[10px] text-sky-200 font-bold uppercase tracking-wider block">Total Learners</span>
             <span className="text-xl font-black text-white">{stats.total}</span>
@@ -391,11 +386,6 @@ export const LearnerDirectory: React.FC<LearnerDirectoryProps> = ({
           <div className="bg-white/10 backdrop-blur-xs p-2.5 rounded-2xl border border-white/15">
             <span className="text-[10px] text-sky-200 font-bold uppercase tracking-wider block">Girls</span>
             <span className="text-xl font-black text-white">{stats.girls}</span>
-          </div>
-
-          <div className="bg-white/10 backdrop-blur-xs p-2.5 rounded-2xl border border-white/15 col-span-2 sm:col-span-1">
-            <span className="text-[10px] text-sky-200 font-bold uppercase tracking-wider block">Attendance</span>
-            <span className="text-xl font-black text-emerald-300">{stats.avgAttendance}%</span>
           </div>
         </div>
       </div>
@@ -452,32 +442,12 @@ export const LearnerDirectory: React.FC<LearnerDirectoryProps> = ({
             </select>
           </div>
 
-          {/* View Mode Toggle: List View Primary */}
-          <div className="sm:col-span-2 flex items-center justify-end gap-1.5">
-            <button
-              onClick={() => setViewMode('table')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
-                viewMode === 'table'
-                  ? 'bg-[#6b1426] text-white shadow-xs'
-                  : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-              }`}
-              title="Official Learner List Roster"
-            >
+          {/* List View indicator */}
+          <div className="sm:col-span-2 flex items-center justify-end">
+            <span className="px-3 py-1.5 rounded-xl text-xs font-bold bg-[#6b1426] text-white shadow-xs flex items-center gap-1.5">
               <List className="w-4 h-4" />
-              <span>List View</span>
-            </button>
-            <button
-              onClick={() => setViewMode('cards')}
-              className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 ${
-                viewMode === 'cards'
-                  ? 'bg-[#6b1426] text-white shadow-xs'
-                  : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-              }`}
-              title="Cards Grid View"
-            >
-              <LayoutGrid className="w-4 h-4" />
-              <span className="hidden sm:inline">Grid</span>
-            </button>
+              <span>Learners List ({filteredLearners.length})</span>
+            </span>
           </div>
         </div>
 
@@ -554,211 +524,101 @@ export const LearnerDirectory: React.FC<LearnerDirectoryProps> = ({
         </div>
       </div>
 
-      {/* VIEW: CARDS GRID */}
-      {viewMode === 'cards' && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredLearners.map((learner) => {
-            const classTeacher = CLASS_TEACHERS[learner.grade] || 'Class Teacher';
-            return (
-              <div
-                key={learner.id}
-                className="group bg-white rounded-3xl border border-stone-200 p-5 shadow-xs hover:shadow-md hover:border-[#6b1426] transition flex flex-col justify-between space-y-4"
-              >
-                <div>
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-rose-50 text-[#6b1426] font-black text-sm border border-rose-200 group-hover:bg-[#6b1426] group-hover:text-white transition">
-                        {learner.firstName.charAt(0)}{learner.lastName.charAt(0)}
-                      </div>
-                      <div className="min-w-0">
-                        <h3 className="font-black text-stone-900 text-sm truncate group-hover:text-[#6b1426] transition">
-                          {learner.fullName}
-                        </h3>
-                        <div className="flex items-center gap-1.5 mt-0.5 text-xs text-stone-500">
-                          <span className="font-mono font-bold bg-stone-100 px-1.5 py-0.2 rounded text-stone-800">
-                            ADM {learner.admNo}
-                          </span>
-                          <span>• {learner.gender === 'M' ? 'Boy' : 'Girl'}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <span className="text-[10px] font-black bg-rose-50 text-[#6b1426] border border-rose-200 px-2 py-0.5 rounded-lg shrink-0">
-                      {learner.grade}
+      {/* VIEW: OFFICIAL ROSTER LIST */}
+      <div className="bg-white rounded-3xl border border-stone-200 shadow-xs overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs border-collapse">
+            <thead className="bg-stone-50 border-b border-stone-200 text-stone-900 font-black">
+              <tr>
+                <th className="p-3.5 text-center w-12">#</th>
+                <th className="p-3.5 w-24 text-center font-mono">ADM NO</th>
+                <th className="p-3.5 min-w-[200px]">LEARNER NAME</th>
+                <th className="p-3.5 text-center w-24">CLASS</th>
+                <th className="p-3.5 text-center w-20">GENDER</th>
+                <th className="p-3.5 min-w-[180px]">GUARDIAN &amp; CONTACT</th>
+                <th className="p-3.5 text-right min-w-[160px]">ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-stone-100">
+              {filteredLearners.map((lrn, idx) => (
+                <tr key={lrn.id} className="hover:bg-rose-50/40 transition group">
+                  <td className="p-3.5 text-center text-stone-400 font-bold">{idx + 1}</td>
+                  <td className="p-3.5 text-center">
+                    <span className="font-mono font-bold text-[#6b1426] bg-rose-50 px-2 py-0.5 rounded-md border border-rose-200">
+                      {lrn.admNo}
                     </span>
-                  </div>
-
-                  {/* Biodata & Contact info */}
-                  <div className="mt-4 pt-3 border-t border-stone-100 space-y-2 text-xs">
-                    <div className="flex items-center justify-between text-stone-600">
-                      <span className="text-[11px] text-stone-400 font-semibold">Parent / Guardian:</span>
-                      <span className="font-bold text-stone-800 truncate max-w-[170px]">
-                        {learner.guardianName || 'Parent / Guardian'}
-                      </span>
+                  </td>
+                  <td className="p-3.5">
+                    <div className="flex items-center gap-2.5">
+                      <div className="h-8 w-8 rounded-xl bg-stone-100 text-[#6b1426] font-black text-xs flex items-center justify-center shrink-0 border border-stone-200 group-hover:bg-[#6b1426] group-hover:text-white transition">
+                        {lrn.firstName.charAt(0)}{lrn.lastName.charAt(0)}
+                      </div>
+                      <div>
+                        <span className="font-black text-stone-900 text-sm block group-hover:text-[#6b1426] transition">
+                          {lrn.fullName}
+                        </span>
+                        <span className="text-[10px] text-stone-500 font-mono">
+                          {lrn.upiNumber || `UPI: Pending`}
+                        </span>
+                      </div>
                     </div>
-
-                    <div className="flex items-center justify-between text-stone-600">
-                      <span className="text-[11px] text-stone-400 font-semibold">Phone:</span>
-                      <a
-                        href={`tel:${learner.guardianPhone || '+254700000000'}`}
-                        className="font-mono text-sky-800 hover:underline flex items-center gap-1"
+                  </td>
+                  <td className="p-3.5 text-center">
+                    <span className="bg-sky-50 text-sky-900 font-black px-2.5 py-1 rounded-xl text-[11px] border border-sky-200">
+                      {lrn.grade}
+                    </span>
+                  </td>
+                  <td className="p-3.5 text-center">
+                    <span className={`text-[11px] font-bold px-2 py-0.5 rounded-md ${
+                      lrn.gender === 'M' ? 'text-sky-800 bg-sky-50' : 'text-rose-800 bg-rose-50'
+                    }`}>
+                      {lrn.gender === 'M' ? 'Boy' : 'Girl'}
+                    </span>
+                  </td>
+                  <td className="p-3.5">
+                    <div className="space-y-0.5">
+                      <span className="font-bold text-stone-800 block text-xs">
+                        {lrn.guardianName || 'Parent / Guardian'}
+                      </span>
+                      {lrn.guardianPhone ? (
+                        <a
+                          href={`tel:${lrn.guardianPhone}`}
+                          className="font-mono text-[11px] text-sky-700 hover:underline flex items-center gap-1 font-semibold"
+                        >
+                          <Phone className="w-3 h-3 text-sky-600" />
+                          <span>{lrn.guardianPhone}</span>
+                        </a>
+                      ) : (
+                        <span className="text-stone-400 text-[11px]">No contact registered</span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="p-3.5 text-right">
+                    <div className="flex items-center justify-end gap-1.5">
+                      <button
+                        onClick={() => onSelectLearner(lrn)}
+                        className="px-2.5 py-1.5 rounded-xl bg-stone-100 hover:bg-[#6b1426] hover:text-white transition text-stone-700 font-bold text-xs inline-flex items-center gap-1"
+                        title="View Learner Profile & History"
                       >
-                        <Phone className="w-3 h-3 text-stone-400" />
-                        <span>{learner.guardianPhone || '+254 700 000 000'}</span>
-                      </a>
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>Profile</span>
+                      </button>
+                      <button
+                        onClick={onNavigateToMarks}
+                        className="px-2.5 py-1.5 rounded-xl bg-rose-50 hover:bg-[#6b1426] hover:text-white text-[#6b1426] font-bold text-xs inline-flex items-center gap-1 border border-rose-200 transition"
+                        title="Enter Marks for this Class"
+                      >
+                        <BookOpen className="w-3.5 h-3.5" />
+                        <span>Marks</span>
+                      </button>
                     </div>
-
-                    <div className="flex items-center justify-between text-stone-600">
-                      <span className="text-[11px] text-stone-400 font-semibold">Attendance Rate:</span>
-                      <span className="font-mono font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                        {learner.attendanceRate}% Regular
-                      </span>
-                    </div>
-
-                    <div className="flex items-center justify-between text-stone-600">
-                      <span className="text-[11px] text-stone-400 font-semibold">Class Teacher:</span>
-                      <span className="font-bold text-stone-700 truncate max-w-[170px]">
-                        {classTeacher}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div className="flex items-center gap-2 pt-2 border-t border-stone-100">
-                  <button
-                    onClick={() => onSelectLearner(learner)}
-                    className="flex-1 py-2 rounded-xl bg-stone-100 hover:bg-rose-50 text-stone-800 hover:text-[#6b1426] font-bold text-xs flex items-center justify-center gap-1.5 transition"
-                  >
-                    <Eye className="w-3.5 h-3.5" />
-                    <span>View Profile</span>
-                  </button>
-
-                  <button
-                    onClick={onNavigateToMarks}
-                    className="py-2 px-3.5 rounded-xl bg-[#6b1426] hover:bg-[#52101e] text-white font-bold text-xs transition"
-                    title="Enter marks for this learner"
-                  >
-                    Enter Marks
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* VIEW: COMPACT LIST / TABLE */}
-      {viewMode === 'table' && (
-        <div className="bg-white rounded-3xl border border-stone-200 shadow-xs overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead className="bg-stone-50 border-b border-stone-200 text-stone-900 font-black">
-                <tr>
-                  <th className="p-3.5 text-center w-12">#</th>
-                  <th className="p-3.5 w-24 text-center font-mono">ADM NO</th>
-                  <th className="p-3.5 min-w-[200px]">LEARNER NAME</th>
-                  <th className="p-3.5 text-center w-24">CLASS</th>
-                  <th className="p-3.5 text-center w-20">GENDER</th>
-                  <th className="p-3.5 min-w-[180px]">GUARDIAN &amp; CONTACT</th>
-                  <th className="p-3.5 text-center w-28">ATTENDANCE</th>
-                  <th className="p-3.5 text-right min-w-[160px]">ACTIONS</th>
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-stone-100">
-                {filteredLearners.map((lrn, idx) => (
-                  <tr key={lrn.id} className="hover:bg-rose-50/40 transition group">
-                    <td className="p-3.5 text-center text-stone-400 font-bold">{idx + 1}</td>
-                    <td className="p-3.5 text-center">
-                      <span className="font-mono font-bold text-[#6b1426] bg-rose-50 px-2 py-0.5 rounded-md border border-rose-200">
-                        {lrn.admNo}
-                      </span>
-                    </td>
-                    <td className="p-3.5">
-                      <div className="flex items-center gap-2.5">
-                        <div className="h-8 w-8 rounded-xl bg-stone-100 text-[#6b1426] font-black text-xs flex items-center justify-center shrink-0 border border-stone-200 group-hover:bg-[#6b1426] group-hover:text-white transition">
-                          {lrn.firstName.charAt(0)}{lrn.lastName.charAt(0)}
-                        </div>
-                        <div>
-                          <span className="font-black text-stone-900 text-sm block group-hover:text-[#6b1426] transition">
-                            {lrn.fullName}
-                          </span>
-                          <span className="text-[10px] text-stone-500 font-mono">
-                            {lrn.upiNumber || `UPI: Pending`}
-                          </span>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="p-3.5 text-center">
-                      <span className="bg-sky-50 text-sky-900 font-black px-2.5 py-1 rounded-xl text-[11px] border border-sky-200">
-                        {lrn.grade}
-                      </span>
-                    </td>
-                    <td className="p-3.5 text-center">
-                      <span className={`text-[11px] font-bold px-2 py-0.5 rounded-md ${
-                        lrn.gender === 'M' ? 'text-sky-800 bg-sky-50' : 'text-rose-800 bg-rose-50'
-                      }`}>
-                        {lrn.gender === 'M' ? 'Boy' : 'Girl'}
-                      </span>
-                    </td>
-                    <td className="p-3.5">
-                      <div className="space-y-0.5">
-                        <span className="font-bold text-stone-800 block text-xs">
-                          {lrn.guardianName || 'Parent / Guardian'}
-                        </span>
-                        {lrn.guardianPhone ? (
-                          <a
-                            href={`tel:${lrn.guardianPhone}`}
-                            className="font-mono text-[11px] text-sky-700 hover:underline flex items-center gap-1 font-semibold"
-                          >
-                            <Phone className="w-3 h-3 text-sky-600" />
-                            <span>{lrn.guardianPhone}</span>
-                          </a>
-                        ) : (
-                          <span className="text-stone-400 text-[11px]">No contact registered</span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="p-3.5 text-center">
-                      <div className="inline-flex flex-col items-center">
-                        <span className="font-mono font-black text-emerald-800 text-xs">
-                          {lrn.attendanceRate}%
-                        </span>
-                        <div className="w-16 h-1.5 bg-stone-200 rounded-full mt-1 overflow-hidden">
-                          <div
-                            className="h-full bg-emerald-600 rounded-full"
-                            style={{ width: `${Math.min(100, lrn.attendanceRate)}%` }}
-                          />
-                        </div>
-                      </div>
-                    </td>
-                    <td className="p-3.5 text-right">
-                      <div className="flex items-center justify-end gap-1.5">
-                        <button
-                          onClick={() => onSelectLearner(lrn)}
-                          className="px-2.5 py-1.5 rounded-xl bg-stone-100 hover:bg-[#6b1426] hover:text-white transition text-stone-700 font-bold text-xs inline-flex items-center gap-1"
-                          title="View Learner Profile & History"
-                        >
-                          <Eye className="w-3.5 h-3.5" />
-                          <span>Profile</span>
-                        </button>
-                        <button
-                          onClick={onNavigateToMarks}
-                          className="px-2.5 py-1.5 rounded-xl bg-rose-50 hover:bg-[#6b1426] hover:text-white text-[#6b1426] font-bold text-xs inline-flex items-center gap-1 border border-rose-200 transition"
-                          title="Enter Marks for this Class"
-                        >
-                          <BookOpen className="w-3.5 h-3.5" />
-                          <span>Marks</span>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
         </div>
-      )}
+      </div>
 
       {filteredLearners.length === 0 && (
         <div className="bg-white rounded-3xl border border-stone-200 p-12 text-center text-stone-500 space-y-2">

@@ -27,6 +27,7 @@ import {
   Smartphone,
   Phone,
   Loader2,
+  TrendingUp,
 } from 'lucide-react';
 
 interface PrintCenterProps {
@@ -45,7 +46,7 @@ export const PrintCenter: React.FC<PrintCenterProps> = ({
   onShowSuccessToast,
 }) => {
   // Mode: single report card, bulk class report cards, or full grade broadsheet
-  const [activeTab, setActiveTab] = useState<'single_report' | 'all_reports' | 'broadsheet' | 'attendance'>('single_report');
+  const [activeTab, setActiveTab] = useState<'single_report' | 'all_reports' | 'broadsheet'>('single_report');
   const [selectedGrade, setSelectedGrade] = useState(initialGrade);
   const [selectedTerm, setSelectedTerm] = useState<'Term 1' | 'Term 2' | 'Term 3'>('Term 3');
   const [selectedYear, setSelectedYear] = useState<string>('2026');
@@ -352,7 +353,7 @@ export const PrintCenter: React.FC<PrintCenterProps> = ({
   const handleDownloadDirectFile = () => {
     if (activeTab === 'broadsheet') {
       // Export broadsheet data directly as CSV file
-      const headers = ['Rank', 'ADM', 'Learner Name', 'Gender', 'Mathematics', 'English', 'Kiswahili', 'Integrated Science', 'Social Studies', 'Agriculture', 'Pre-Technical', 'CRE', 'Arts', 'Total Points /72', 'Rubric Level', 'Attendance %'];
+      const headers = ['Rank', 'ADM', 'Learner Name', 'Gender', 'Mathematics', 'English', 'Kiswahili', 'Integrated Science', 'Social Studies', 'Agriculture', 'Pre-Technical', 'CRE', 'Arts', 'Total Points /72', 'Rubric Level'];
       const rows = sortedBroadsheetLearners.map((item, idx) => {
         const { learner: lrn, rep } = item;
         const math = rep.subjectRows.find((s) => s.subject === 'Mathematics')?.points ?? '';
@@ -380,7 +381,6 @@ export const PrintCenter: React.FC<PrintCenterProps> = ({
           arts,
           rep.totalPoints,
           `"${rep.overall.level}"`,
-          `${lrn.attendanceRate}%`,
         ].join(',');
       });
       const meanScoreRow = [
@@ -570,17 +570,6 @@ export const PrintCenter: React.FC<PrintCenterProps> = ({
               }`}
             >
               Grade Broadsheet (Mean &amp; Rank)
-            </button>
-
-            <button
-              onClick={() => setActiveTab('attendance')}
-              className={`px-3 py-1.5 rounded-lg transition ${
-                activeTab === 'attendance'
-                  ? 'bg-white text-[#6b1426] shadow-xs'
-                  : 'text-stone-600 hover:text-stone-900'
-              }`}
-            >
-              Attendance Summary
             </button>
           </div>
 
@@ -882,23 +871,67 @@ export const PrintCenter: React.FC<PrintCenterProps> = ({
                   <th className="p-1.5 border-r border-stone-300 w-12 text-center font-mono">ADM</th>
                   <th className="p-1.5 border-r border-stone-300 min-w-[130px]">LEARNER NAME</th>
                   <th className="p-1.5 border-r border-stone-300 text-center w-8">GEN</th>
-                  <th className="p-1.5 border-r border-stone-300 text-center w-12" title="Mathematics Score %">MATH (%)</th>
-                  <th className="p-1.5 border-r border-stone-300 text-center w-12" title="English Score %">ENG (%)</th>
-                  <th className="p-1.5 border-r border-stone-300 text-center w-12" title="Kiswahili Score %">KISW (%)</th>
-                  <th className="p-1.5 border-r border-stone-300 text-center w-12" title="Integrated Science Score %">SCI (%)</th>
-                  <th className="p-1.5 border-r border-stone-300 text-center w-12" title="Social Studies Score %">SOC (%)</th>
-                  <th className="p-1.5 border-r border-stone-300 text-center w-12" title="Agriculture & Nutrition Score %">AGRI (%)</th>
-                  <th className="p-1.5 border-r border-stone-300 text-center w-12" title="Pre-Technical Studies Score %">P-TECH (%)</th>
-                  <th className="p-1.5 border-r border-stone-300 text-center w-12" title="CRE Score %">CRE (%)</th>
-                  <th className="p-1.5 border-r border-stone-300 text-center w-12" title="Creative Arts & Sports Score %">ARTS (%)</th>
+                  <th className="p-1.5 border-r border-stone-300 text-center w-12" title="Mathematics Score %">
+                    <div>MATH (%)</div>
+                    <div className="text-[9px] font-mono font-black text-[#6b1426] bg-rose-50 rounded mt-0.5" title="Mathematics Mean">
+                      x̄ {subjectMeans['Mathematics']?.meanScore ?? 0}%
+                    </div>
+                  </th>
+                  <th className="p-1.5 border-r border-stone-300 text-center w-12" title="English Score %">
+                    <div>ENG (%)</div>
+                    <div className="text-[9px] font-mono font-black text-[#6b1426] bg-rose-50 rounded mt-0.5" title="English Mean">
+                      x̄ {subjectMeans['English']?.meanScore ?? 0}%
+                    </div>
+                  </th>
+                  <th className="p-1.5 border-r border-stone-300 text-center w-12" title="Kiswahili Score %">
+                    <div>KISW (%)</div>
+                    <div className="text-[9px] font-mono font-black text-[#6b1426] bg-rose-50 rounded mt-0.5" title="Kiswahili Mean">
+                      x̄ {subjectMeans['Kiswahili']?.meanScore ?? 0}%
+                    </div>
+                  </th>
+                  <th className="p-1.5 border-r border-stone-300 text-center w-12" title="Integrated Science Score %">
+                    <div>SCI (%)</div>
+                    <div className="text-[9px] font-mono font-black text-[#6b1426] bg-rose-50 rounded mt-0.5" title="Integrated Science Mean">
+                      x̄ {subjectMeans['Integrated Science']?.meanScore ?? 0}%
+                    </div>
+                  </th>
+                  <th className="p-1.5 border-r border-stone-300 text-center w-12" title="Social Studies Score %">
+                    <div>SOC (%)</div>
+                    <div className="text-[9px] font-mono font-black text-[#6b1426] bg-rose-50 rounded mt-0.5" title="Social Studies Mean">
+                      x̄ {subjectMeans['Social Studies']?.meanScore ?? 0}%
+                    </div>
+                  </th>
+                  <th className="p-1.5 border-r border-stone-300 text-center w-12" title="Agriculture & Nutrition Score %">
+                    <div>AGRI (%)</div>
+                    <div className="text-[9px] font-mono font-black text-[#6b1426] bg-rose-50 rounded mt-0.5" title="Agriculture Mean">
+                      x̄ {subjectMeans['Agriculture & Nutrition']?.meanScore ?? 0}%
+                    </div>
+                  </th>
+                  <th className="p-1.5 border-r border-stone-300 text-center w-12" title="Pre-Technical Studies Score %">
+                    <div>P-TECH (%)</div>
+                    <div className="text-[9px] font-mono font-black text-[#6b1426] bg-rose-50 rounded mt-0.5" title="Pre-Technical Mean">
+                      x̄ {subjectMeans['Pre-Technical Studies']?.meanScore ?? 0}%
+                    </div>
+                  </th>
+                  <th className="p-1.5 border-r border-stone-300 text-center w-12" title="CRE Score %">
+                    <div>CRE (%)</div>
+                    <div className="text-[9px] font-mono font-black text-[#6b1426] bg-rose-50 rounded mt-0.5" title="CRE Mean">
+                      x̄ {subjectMeans['CRE (Religious Education)']?.meanScore ?? 0}%
+                    </div>
+                  </th>
+                  <th className="p-1.5 border-r border-stone-300 text-center w-12" title="Creative Arts & Sports Score %">
+                    <div>ARTS (%)</div>
+                    <div className="text-[9px] font-mono font-black text-[#6b1426] bg-rose-50 rounded mt-0.5" title="Creative Arts Mean">
+                      x̄ {subjectMeans['Creative Arts & Sports']?.meanScore ?? 0}%
+                    </div>
+                  </th>
                   <th className="p-1.5 border-r border-stone-300 text-center w-14 bg-sky-50 font-black text-sky-950">
                     MEAN %
                   </th>
                   <th className="p-1.5 border-r border-stone-300 text-center w-14 bg-rose-50 font-black text-[#6b1426]">
                     TOTAL (/72)
                   </th>
-                  <th className="p-1.5 border-r border-stone-300 text-center w-14 font-black">RUBRIC</th>
-                  <th className="p-1.5 text-center w-12">ATT %</th>
+                  <th className="p-1.5 text-center w-14 font-black">RUBRIC</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-300">
@@ -980,11 +1013,8 @@ export const PrintCenter: React.FC<PrintCenterProps> = ({
                       <td className="p-1.5 border-r border-stone-300 text-center font-mono font-black text-[#6b1426] bg-rose-50/60">
                         {rep.totalPoints}
                       </td>
-                      <td className="p-1.5 border-r border-stone-300 text-center font-bold text-sky-950">
+                      <td className="p-1.5 text-center font-bold text-sky-950">
                         {rep.overall.level}
-                      </td>
-                      <td className="p-1.5 text-center font-mono text-stone-600">
-                        {lrn.attendanceRate}%
                       </td>
                     </tr>
                   );
@@ -1031,13 +1061,8 @@ export const PrintCenter: React.FC<PrintCenterProps> = ({
                   <td className="p-1.5 border-r border-stone-300 text-center font-mono font-black text-[#6b1426] bg-rose-100">
                     {classMeanStats.meanScore}
                   </td>
-                  <td className="p-1.5 border-r border-stone-300 text-center font-black text-stone-900 bg-stone-200">
+                  <td className="p-1.5 text-center font-black text-stone-900 bg-stone-200">
                     {classMeanStats.meanRubric.level}
-                  </td>
-                  <td className="p-1.5 text-center font-mono font-bold text-stone-700">
-                    {sortedBroadsheetLearners.length > 0 
-                      ? Math.round(sortedBroadsheetLearners.reduce((acc, l) => acc + l.learner.attendanceRate, 0) / sortedBroadsheetLearners.length) 
-                      : 0}%
                   </td>
                 </tr>
 
@@ -1077,6 +1102,43 @@ export const PrintCenter: React.FC<PrintCenterProps> = ({
                     Class Academic Benchmark
                   </td>
                 </tr>
+
+                {/* Row 3: CBC Assessment Level */}
+                <tr className="bg-stone-100 text-[10px]">
+                  <td colSpan={4} className="p-2 border-r border-stone-300 text-right font-black uppercase text-stone-800">
+                    CBC ASSESSMENT LEVEL
+                  </td>
+                  <td className="p-1.5 border-r border-stone-300 text-center font-black text-rose-900 bg-rose-50/60">
+                    {subjectMeans['Mathematics']?.rubric ?? '—'}
+                  </td>
+                  <td className="p-1.5 border-r border-stone-300 text-center font-black text-rose-900 bg-rose-50/60">
+                    {subjectMeans['English']?.rubric ?? '—'}
+                  </td>
+                  <td className="p-1.5 border-r border-stone-300 text-center font-black text-rose-900 bg-rose-50/60">
+                    {subjectMeans['Kiswahili']?.rubric ?? '—'}
+                  </td>
+                  <td className="p-1.5 border-r border-stone-300 text-center font-black text-rose-900 bg-rose-50/60">
+                    {subjectMeans['Integrated Science']?.rubric ?? '—'}
+                  </td>
+                  <td className="p-1.5 border-r border-stone-300 text-center font-black text-rose-900 bg-rose-50/60">
+                    {subjectMeans['Social Studies']?.rubric ?? '—'}
+                  </td>
+                  <td className="p-1.5 border-r border-stone-300 text-center font-black text-rose-900 bg-rose-50/60">
+                    {subjectMeans['Agriculture & Nutrition']?.rubric ?? '—'}
+                  </td>
+                  <td className="p-1.5 border-r border-stone-300 text-center font-black text-rose-900 bg-rose-50/60">
+                    {subjectMeans['Pre-Technical Studies']?.rubric ?? '—'}
+                  </td>
+                  <td className="p-1.5 border-r border-stone-300 text-center font-black text-rose-900 bg-rose-50/60">
+                    {subjectMeans['CRE (Religious Education)']?.rubric ?? '—'}
+                  </td>
+                  <td className="p-1.5 border-r border-stone-300 text-center font-black text-rose-900 bg-rose-50/60">
+                    {subjectMeans['Creative Arts & Sports']?.rubric ?? '—'}
+                  </td>
+                  <td colSpan={4} className="p-1.5 text-center font-extrabold text-[#6b1426] bg-rose-100">
+                    Overall: {classMeanStats.meanRubric.level}
+                  </td>
+                </tr>
               </tfoot>
             </table>
           </div>
@@ -1091,65 +1153,6 @@ export const PrintCenter: React.FC<PrintCenterProps> = ({
               Approved by Head of Institution: <strong>Mr John Koech</strong>
               <div className="mt-1">Signature &amp; Stamp: __________________________</div>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* 4. ATTENDANCE SUMMARY */}
-      {/* ========================================================================= */}
-      {activeTab === 'attendance' && (
-        <div className="bg-white rounded-2xl border border-stone-300 p-6 sm:p-8 shadow-lg max-w-5xl mx-auto print:border-none print:shadow-none print:p-0 print:m-0 text-stone-950">
-          <div className="border-b-2 border-stone-900 pb-3 mb-4 text-center">
-            <h2 className="text-xl font-black uppercase">{SCHOOL_INFO.name}</h2>
-            <p className="text-xs font-bold text-[#6b1426] uppercase">
-              {selectedGrade} Attendance Ledger • {selectedTerm} {SCHOOL_INFO.currentYear}
-            </p>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse border border-stone-300">
-              <thead className="bg-stone-100 font-bold border-b border-stone-300">
-                <tr>
-                  <th className="p-2 border-r text-center w-12">ADM</th>
-                  <th className="p-2 border-r">Learner Name</th>
-                  <th className="p-2 border-r text-center w-12">Gender</th>
-                  <th className="p-2 border-r text-center w-20">Present</th>
-                  <th className="p-2 border-r text-center w-20">Absent</th>
-                  <th className="p-2 border-r text-center w-24">Rate %</th>
-                  <th className="p-2 text-center w-28">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-stone-200">
-                {classLearners.map((lrn) => {
-                  const totalDays = 60;
-                  const presentDays = Math.round((lrn.attendanceRate / 100) * totalDays);
-                  const absentDays = totalDays - presentDays;
-                  return (
-                    <tr key={lrn.id}>
-                      <td className="p-2 border-r font-mono font-bold text-center">{lrn.admNo}</td>
-                      <td className="p-2 border-r font-semibold">{lrn.fullName}</td>
-                      <td className="p-2 border-r text-center">{lrn.gender}</td>
-                      <td className="p-2 border-r text-center font-mono text-sky-800 font-bold">{presentDays}</td>
-                      <td className="p-2 border-r text-center font-mono text-rose-800">{absentDays}</td>
-                      <td className="p-2 border-r text-center font-mono font-bold">{lrn.attendanceRate}%</td>
-                      <td className="p-2 text-center text-[11px] font-bold">
-                        {lrn.attendanceRate >= 90 ? (
-                          <span className="text-sky-700">Regular</span>
-                        ) : (
-                          <span className="text-rose-700">Intervention</span>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="pt-6 mt-4 border-t border-stone-200 flex justify-between text-xs text-stone-700">
-            <span>Verified by Class Teacher: <strong>{CLASS_TEACHERS[selectedGrade] || 'Class Teacher'}</strong></span>
-            <span>Head Teacher: <strong>Mr John Koech</strong></span>
           </div>
         </div>
       )}
@@ -1312,10 +1315,10 @@ const ReportCardDocument: React.FC<ReportCardDocumentProps> = ({
 
           <div>
             <span className="text-[9px] font-bold text-stone-500 uppercase tracking-wider block">
-              Attendance Record
+              Assessment Term
             </span>
             <span className="text-xs font-bold text-emerald-800 block">
-              {learner.attendanceRate}% Regular
+              {term} Evaluation
             </span>
           </div>
 

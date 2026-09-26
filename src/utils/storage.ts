@@ -1,7 +1,6 @@
 import {
   Learner,
   MarkEntry,
-  AttendanceRecord,
   Announcement,
   CalendarEvent,
   SchoolDocument,
@@ -12,7 +11,6 @@ import {
 import {
   INITIAL_LEARNERS,
   INITIAL_MARKS,
-  INITIAL_ATTENDANCE,
   INITIAL_ANNOUNCEMENTS,
   INITIAL_CALENDAR_EVENTS,
   INITIAL_DOCUMENTS,
@@ -26,7 +24,6 @@ const STORAGE_KEYS = {
   TEACHERS: 'reberwet_teachers_v3',
   LEARNERS: 'reberwet_learners_v3',
   MARKS: 'reberwet_marks_v3',
-  ATTENDANCE: 'reberwet_attendance_v3',
   ANNOUNCEMENTS: 'reberwet_announcements_v3',
   CALENDAR: 'reberwet_calendar_v3',
   DOCUMENTS: 'reberwet_documents_v3',
@@ -65,21 +62,36 @@ export const StorageService = {
     }
   },
 
-  // Current user
-  getCurrentUser(): UserProfile {
+  // Current user - Returns null if not logged in on this device (prompts for registration / sign in)
+  getCurrentUser(): UserProfile | null {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.CURRENT_USER);
       if (saved) return JSON.parse(saved);
     } catch {
       // ignore
     }
-    const all = this.getTeachers();
-    return all[0] || DEFAULT_USERS[0];
+    return null;
   },
 
-  setCurrentUser(user: UserProfile) {
+  setCurrentUser(user: UserProfile | null) {
     try {
-      localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(user));
+      if (user) {
+        localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(user));
+      } else {
+        localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
+      }
+    } catch {
+      // ignore
+    }
+  },
+
+  saveCurrentUser(user: UserProfile | null) {
+    this.setCurrentUser(user);
+  },
+
+  clearCurrentUser() {
+    try {
+      localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
     } catch {
       // ignore
     }
@@ -143,25 +155,6 @@ export const StorageService = {
   saveMarks(marks: MarkEntry[]) {
     try {
       localStorage.setItem(STORAGE_KEYS.MARKS, JSON.stringify(marks));
-    } catch {
-      // ignore
-    }
-  },
-
-  // Attendance
-  getAttendance(): AttendanceRecord[] {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEYS.ATTENDANCE);
-      if (saved) return JSON.parse(saved);
-    } catch {
-      // ignore
-    }
-    return INITIAL_ATTENDANCE;
-  },
-
-  saveAttendance(attendance: AttendanceRecord[]) {
-    try {
-      localStorage.setItem(STORAGE_KEYS.ATTENDANCE, JSON.stringify(attendance));
     } catch {
       // ignore
     }
@@ -321,21 +314,6 @@ export const StorageService = {
     return updated;
   },
 
-  saveAttendanceRecord(record: AttendanceRecord) {
-    const current = this.getAttendance();
-    const index = current.findIndex(
-      (r) => r.grade === record.grade && r.stream === record.stream && r.date === record.date
-    );
-    let updated: AttendanceRecord[];
-    if (index >= 0) {
-      updated = [...current];
-      updated[index] = record;
-    } else {
-      updated = [record, ...current];
-    }
-    this.saveAttendance(updated);
-  },
-
   saveLearner(learner: Learner) {
     const current = this.getLearners();
     const index = current.findIndex((l) => l.id === learner.id);
@@ -381,10 +359,6 @@ export const StorageService = {
     const current = this.getDocuments();
     const updated = [doc, ...current];
     this.saveDocuments(updated);
-  },
-
-  saveCurrentUser(user: UserProfile) {
-    this.setCurrentUser(user);
   },
 
   // Reset to default data

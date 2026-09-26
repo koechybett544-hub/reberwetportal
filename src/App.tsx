@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   Learner,
   MarkEntry,
-  AttendanceRecord,
   Announcement,
   SchoolDocument,
   TeacherActivity,
@@ -15,7 +14,6 @@ import { MobileNav } from './components/MobileNav';
 import { OfflineIndicator } from './components/OfflineIndicator';
 import { TeacherDashboard } from './components/TeacherDashboard';
 import { MarksEntry } from './components/MarksEntry';
-import { AttendanceManager } from './components/AttendanceManager';
 import { LearnerDirectory } from './components/LearnerDirectory';
 import { LearnerProfileModal } from './components/LearnerProfileModal';
 import { MyClasses } from './components/MyClasses';
@@ -38,15 +36,13 @@ import {
   saveTeacherToFirestore,
   fetchTeachersFromFirestore,
 } from './lib/firebase';
+import { DEFAULT_USERS } from './data/initialData';
 import { CheckCircle2 } from 'lucide-react';
 
 export default function App() {
   // Application Data State backed by StorageService
   const [learners, setLearners] = useState<Learner[]>(() => StorageService.getLearners());
   const [marks, setMarks] = useState<MarkEntry[]>(() => StorageService.getMarks());
-  const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>(() =>
-    StorageService.getAttendance()
-  );
   const [announcements, setAnnouncements] = useState<Announcement[]>(() =>
     StorageService.getAnnouncements()
   );
@@ -60,7 +56,7 @@ export default function App() {
   const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>(() =>
     StorageService.getAuditLogs()
   );
-  const [currentUser, setCurrentUser] = useState<UserProfile>(() =>
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(() =>
     StorageService.getCurrentUser()
   );
   const [teachers, setTeachers] = useState<UserProfile[]>(() =>
@@ -78,8 +74,8 @@ export default function App() {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
 
-  // New Requested Modals
-  const [authModalOpen, setAuthModalOpen] = useState(false);
+  // Auth Modal automatically opens on first load if no user is registered/logged in on this phone
+  const [authModalOpen, setAuthModalOpen] = useState(() => !StorageService.getCurrentUser());
   const [gmailModalOpen, setGmailModalOpen] = useState(false);
 
   // Unsaved changes protection
@@ -140,10 +136,12 @@ export default function App() {
   const handleUpdateTeachers = (updatedTeachers: UserProfile[]) => {
     setTeachers(updatedTeachers);
     StorageService.saveTeachers(updatedTeachers);
-    const currentInList = updatedTeachers.find((t) => t.id === currentUser.id);
-    if (currentInList) {
-      setCurrentUser(currentInList);
-      StorageService.saveCurrentUser(currentInList);
+    if (currentUser) {
+      const currentInList = updatedTeachers.find((t) => t.id === currentUser.id);
+      if (currentInList) {
+        setCurrentUser(currentInList);
+        StorageService.saveCurrentUser(currentInList);
+      }
     }
   };
 
@@ -277,9 +275,9 @@ export default function App() {
     const audit: AuditLogEntry = {
       id: `audit-${Date.now()}`,
       timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
-      userId: currentUser.id,
-      userName: currentUser.name,
-      userRole: currentUser.role,
+      userId: currentUser?.id || 'sys',
+      userName: currentUser?.name || 'Teacher Staff',
+      userRole: currentUser?.role || 'teacher',
       action: 'Marks Batch Submission',
       grade: 'Grade 8',
       subject: 'Mathematics',
@@ -291,21 +289,6 @@ export default function App() {
     };
     StorageService.addAuditLog(audit);
     setAuditLogs(StorageService.getAuditLogs());
-  };
-
-  // Update Attendance handler
-  const handleSaveAttendance = (record: AttendanceRecord) => {
-    StorageService.saveAttendanceRecord(record);
-    setAttendanceRecords(StorageService.getAttendance());
-
-    const act: TeacherActivity = {
-      id: `act-${Date.now()}`,
-      action: `Recorded attendance for ${record.grade} (${record.date})`,
-      time: 'Just now',
-      category: 'attendance',
-    };
-    StorageService.addActivity(act);
-    setActivities(StorageService.getActivities());
   };
 
   // Add Learner handler
@@ -381,11 +364,17 @@ export default function App() {
 
   const handleLogout = async () => {
     await logOut();
-    showToast('Logged out of Google session.');
+    StorageService.clearCurrentUser();
+    setCurrentUser(null);
+    setAuthModalOpen(true);
+    showToast('Logged out of device session. Please register or sign in to continue.');
   };
 
   // Calculate pending marks count
   const pendingMarksCount = 2;
+
+  // Active user fallback for subcomponents while gate is active
+  const activeUser = currentUser || DEFAULT_USERS[0];
 
   // Breadcrumbs generator
   const getBreadcrumbs = () => {
@@ -393,7 +382,6 @@ export default function App() {
     const labels: Record<string, string> = {
       classes: 'My Classes',
       marks: 'Enter Marks',
-      attendance: 'Attendance',
       learners: 'Learners Directory',
       reports: 'Print Centre',
       announcements: 'Announcements',
@@ -467,9 +455,6 @@ export default function App() {
               });
               navigateTo('marks');
             }}
-            onNavigateToAttendanceWithClass={(grade, stream) => {
-              navigateTo('attendance');
-            }}
             onViewLearnersWithFilter={(grade, stream) => {
               navigateTo('learners');
             }}
@@ -489,16 +474,6 @@ export default function App() {
             onOpenHelp={() => setHelpModalOpen(true)}
             onSelectLearner={(learner) => setSelectedLearner(learner)}
             setHasUnsavedChanges={setHasUnsavedChanges}
-            onShowSuccessToast={showToast}
-          />
-        )}
-
-        {currentView === 'attendance' && (
-          <AttendanceManager
-            learners={learners}
-            currentUser={currentUser}
-            onSaveAttendance={handleSaveAttendance}
-            attendanceRecords={attendanceRecords}
             onShowSuccessToast={showToast}
           />
         )}
@@ -557,6 +532,7 @@ export default function App() {
             currentUser={currentUser}
             onNavigate={navigateTo}
             onUpdateCurrentUser={handleUpdateCurrentUser}
+            onLogout={handleLogout}
           />
         )}
 
@@ -598,7 +574,7 @@ export default function App() {
         learner={selectedLearner}
         onClose={() => setSelectedLearner(null)}
         onUpdateComments={handleUpdateComments}
-        currentUser={currentUser}
+        currentUser={activeUser}
         onShowSuccessToast={showToast}
         onUpdateLearner={handleUpdateLearner}
         marks={marks}
@@ -644,26 +620,32 @@ export default function App() {
         isOpen={moreMenuOpen}
         onClose={() => setMoreMenuOpen(false)}
         onNavigate={navigateTo}
-        currentUser={currentUser}
+        currentUser={activeUser}
         onOpenAuthModal={() => setAuthModalOpen(true)}
       />
 
       {/* 7. Auth Modal (Username/Password, Real-time SMS Code, Biometrics) */}
       <AuthModal
         isOpen={authModalOpen}
-        onClose={() => setAuthModalOpen(false)}
+        onClose={() => {
+          if (currentUser) {
+            setAuthModalOpen(false);
+          }
+        }}
         currentUser={currentUser}
         teachers={teachers}
         onLoginSuccess={handleAuthLoginSuccess}
         onLogout={handleLogout}
         onShowSuccessToast={showToast}
+        canClose={currentUser !== null}
+        defaultMode={!currentUser ? 'signup' : undefined}
       />
 
       {/* 8. Gmail Center Modal */}
       <GmailCenterModal
         isOpen={gmailModalOpen}
         onClose={() => setGmailModalOpen(false)}
-        currentUser={currentUser}
+        currentUser={activeUser}
         onShowSuccessToast={showToast}
         onTriggerGoogleSignIn={() => {
           setGmailModalOpen(false);

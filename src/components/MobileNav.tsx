@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, BookOpen, CheckSquare, Users, MoreHorizontal } from 'lucide-react';
+import { Home, BookOpen, FileText, Users, MoreHorizontal } from 'lucide-react';
 
 interface MobileNavProps {
   currentView: string;
@@ -49,17 +49,17 @@ export const MobileNav: React.FC<MobileNavProps> = ({
           )}
         </button>
 
-        {/* Attendance */}
+        {/* Reports */}
         <button
-          onClick={() => onNavigate('attendance')}
+          onClick={() => onNavigate('reports')}
           className={`flex flex-col items-center justify-center py-1 rounded-xl transition ${
-            currentView === 'attendance'
+            currentView === 'reports'
               ? 'text-[#6b1426] font-bold bg-rose-50'
               : 'text-stone-500 hover:text-stone-900'
           }`}
         >
-          <CheckSquare className="w-5 h-5" />
-          <span className="text-[10px] mt-0.5">Attendance</span>
+          <FileText className="w-5 h-5" />
+          <span className="text-[10px] mt-0.5">Reports</span>
         </button>
 
         {/* Learners */}

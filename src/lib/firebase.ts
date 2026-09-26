@@ -140,6 +140,13 @@ export const signInWithGoogle = async (): Promise<{
     cachedAccessToken = token;
     return { user: result.user, accessToken: token };
   } catch (error: any) {
+    if (
+      error?.code === 'auth/popup-closed-by-user' ||
+      error?.code === 'auth/cancelled-popup-request'
+    ) {
+      // User closed or dismissed the popup window - not an application failure
+      return null;
+    }
     console.error('Sign in error:', error);
     throw error;
   } finally {

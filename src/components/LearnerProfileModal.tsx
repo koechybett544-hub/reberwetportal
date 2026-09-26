@@ -66,7 +66,6 @@ export const LearnerProfileModal: React.FC<LearnerProfileModalProps> = ({
   const [editUpiNumber, setEditUpiNumber] = useState(learner.upiNumber || `NEMIS-${learner.admNo}K`);
   const [editGuardianName, setEditGuardianName] = useState(learner.guardianName || '');
   const [editGuardianPhone, setEditGuardianPhone] = useState(learner.guardianPhone || '');
-  const [editAttendanceRate, setEditAttendanceRate] = useState(learner.attendanceRate || 95);
   const [editStatus, setEditStatus] = useState<'Active' | 'Archived' | 'Graduated'>(learner.status || 'Active');
   const [editSpecialNeeds, setEditSpecialNeeds] = useState(learner.specialNeeds || '');
   const [photoPreview, setPhotoPreview] = useState<string | undefined>(learner.photo);
@@ -141,7 +140,6 @@ export const LearnerProfileModal: React.FC<LearnerProfileModalProps> = ({
       upiNumber: editUpiNumber.trim(),
       guardianName: editGuardianName.trim(),
       guardianPhone: editGuardianPhone.trim(),
-      attendanceRate: Number(editAttendanceRate) || 95,
       status: editStatus,
       specialNeeds: editSpecialNeeds.trim(),
       photo: photoPreview,
@@ -533,20 +531,6 @@ export const LearnerProfileModal: React.FC<LearnerProfileModalProps> = ({
 
                   <div>
                     <label className="block text-xs font-bold text-stone-700 mb-1">
-                      Attendance Rate (%):
-                    </label>
-                    <input
-                      type="number"
-                      min="0"
-                      max="100"
-                      value={editAttendanceRate}
-                      onChange={(e) => setEditAttendanceRate(Number(e.target.value))}
-                      className="w-full rounded-xl border border-stone-300 p-2.5 text-xs font-mono font-bold text-stone-900 focus:border-[#6b1426] focus:outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-stone-700 mb-1">
                       Parent / Guardian Name:
                     </label>
                     <input
@@ -638,11 +622,10 @@ export const LearnerProfileModal: React.FC<LearnerProfileModalProps> = ({
 
                 <div className="bg-white border border-stone-200 rounded-2xl p-3.5 shadow-xs">
                   <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">
-                    Attendance Rate
+                    Assessment Cycle
                   </span>
                   <div className="text-sm font-black text-emerald-800 mt-1 flex items-center gap-1">
-                    <span>{learner.attendanceRate}%</span>
-                    <span className="text-[10px] font-normal text-stone-500">present</span>
+                    <span>Term 3 Active</span>
                   </div>
                 </div>
 

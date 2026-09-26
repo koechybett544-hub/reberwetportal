@@ -36,7 +36,7 @@ import {
 } from 'lucide-react';
 
 interface TeacherDashboardProps {
-  currentUser: UserProfile;
+  currentUser: UserProfile | null;
   teachers: UserProfile[];
   onNavigate: (view: string) => void;
   activities: TeacherActivity[];
@@ -85,7 +85,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
 
   // Search in Recent Activities modal
   const [activitySearch, setActivitySearch] = useState('');
-  const [activityCategory, setActivityCategory] = useState<'all' | 'marks' | 'attendance' | 'document' | 'circular' | 'system'>('all');
+  const [activityCategory, setActivityCategory] = useState<'all' | 'marks' | 'document' | 'circular' | 'system'>('all');
 
   // Search in Announcements modal
   const [announcementSearch, setAnnouncementSearch] = useState('');
@@ -164,9 +164,9 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
       term: 'Term 3',
       fileType: 'PDF',
       fileSize: newResFile ? `${(newResFile.size / (1024 * 1024)).toFixed(1)} MB` : '1.2 MB',
-      author: currentUser.name,
+      author: currentUser?.name || 'Teacher Staff',
       date: new Date().toISOString().slice(0, 10),
-      content: newResContent.trim() || `CBC curriculum teaching notes for ${newResSubject} (${newResGrade}). Prepared by ${currentUser.name}.`,
+      content: newResContent.trim() || `CBC curriculum teaching notes for ${newResSubject} (${newResGrade}). Prepared by ${currentUser?.name || 'Teacher Staff'}.`,
       keyOutcomes: [
         `Understand core competency strands in ${newResSubject}.`,
         'Demonstrate practical learner problem-solving.',
@@ -196,15 +196,15 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white">
-                  Hello, {currentUser.name}
+                  Hello, {currentUser?.name || 'Teacher Staff'}
                 </h1>
                 <span className="bg-[#3b0a16] text-sky-200 border border-sky-300/40 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full">
-                  {currentUser.role === 'super_admin' ? 'Head Teacher' : currentUser.role === 'school_admin' ? 'School Admin' : 'Teacher Seat'}
+                  {currentUser?.role === 'super_admin' ? 'Head Teacher' : currentUser?.role === 'school_admin' ? 'School Admin' : 'Teacher Seat'}
                 </span>
               </div>
               <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-xs text-sky-100">
                 <span className="font-bold text-sky-200">Allocated Teaching:</span>
-                {currentUser.assignments && currentUser.assignments.length > 0 ? (
+                {currentUser?.assignments && currentUser.assignments.length > 0 ? (
                   currentUser.assignments.map((asgn, i) => (
                     <span
                       key={i}
@@ -292,23 +292,6 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
             )}
           </button>
 
-          {/* Take Attendance */}
-          <button
-            id="quick-action-take-attendance"
-            onClick={() => onNavigate('attendance')}
-            className="group relative flex flex-col items-start p-4 bg-white hover:bg-sky-50/50 rounded-2xl border-2 border-stone-200 hover:border-sky-600 shadow-xs hover:shadow-md transition text-left active:scale-[0.98]"
-          >
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-sky-50 text-sky-800 group-hover:bg-sky-700 group-hover:text-white transition mb-3">
-              <CheckSquare className="w-6 h-6" />
-            </div>
-            <div className="text-base font-extrabold text-stone-900 group-hover:text-sky-950">
-              Take Attendance
-            </div>
-            <div className="text-xs text-stone-500 mt-1 line-clamp-1">
-              Daily Grade 7–9 register
-            </div>
-          </button>
-
           {/* Reports & Broadsheet (Replaced Gmail Desk with Reports) */}
           <button
             id="quick-action-reports"
@@ -350,7 +333,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
         isOpen={teachersModalOpen}
         onClose={() => setTeachersModalOpen(false)}
         teachers={teachers}
-        currentUser={currentUser}
+        currentUser={currentUser || DEFAULT_USERS[0]}
         onUpdateTeachers={onUpdateTeachers}
         onShowSuccessToast={onShowSuccessToast}
       />
@@ -439,21 +422,6 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
             <div className="text-[11px] text-stone-500 mt-0.5">Scores &amp; Rubrics</div>
           </button>
 
-          {/* TAKE ATTENDANCE */}
-          <button
-            id="module-attendance"
-            onClick={() => onNavigate('attendance')}
-            className="flex flex-col p-4 rounded-2xl bg-white border border-stone-200 hover:border-sky-600 shadow-xs hover:shadow-md transition text-left active:scale-[0.98] group"
-          >
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-sky-800 group-hover:bg-sky-700 group-hover:text-white transition mb-2.5">
-              <CheckSquare className="w-5 h-5" />
-            </div>
-            <div className="text-sm font-extrabold text-stone-900 group-hover:text-sky-950">
-              ATTENDANCE
-            </div>
-            <div className="text-[11px] text-stone-500 mt-0.5">Daily Register</div>
-          </button>
-
           {/* TEACHERS DETAILS */}
           <button
             id="module-teachers-details"
@@ -533,7 +501,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                 <div>
                   <h3 className="text-base font-black text-white">Your Recent Activity Log</h3>
                   <p className="text-xs text-sky-100/90">
-                    Audit log of actions performed by {currentUser.name}
+                    Audit log of actions performed by {currentUser?.name || 'Teacher Staff'}
                   </p>
                 </div>
               </div>
@@ -560,7 +528,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
 
               <div className="flex items-center gap-1.5 flex-wrap">
                 <span className="text-[11px] font-bold text-stone-500 uppercase mr-1">Category:</span>
-                {(['all', 'marks', 'attendance', 'document', 'circular'] as const).map((cat) => (
+                {(['all', 'marks', 'document', 'circular'] as const).map((cat) => (
                   <button
                     key={cat}
                     onClick={() => setActivityCategory(cat)}

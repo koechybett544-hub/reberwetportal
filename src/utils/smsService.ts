@@ -59,7 +59,7 @@ export function formatReportCardSms(options: {
   subjects?: SubjectRubricSummary[];
   totalPoints: number;
   overallRubric: string;
-  attendanceRate: number;
+  attendanceRate?: number;
   classTeacherComment?: string;
   reopeningDate?: string;
   schoolName?: string;
@@ -92,7 +92,6 @@ ${subjectsSection}
 PERFORMANCE SUMMARY:
 • Total Points: ${options.totalPoints}/72
 • Overall Level: ${options.overallRubric}
-• Term Attendance: ${options.attendanceRate}% Regular
 
 TEACHER REMARKS:
 "${comment}"
@@ -185,7 +184,7 @@ export function formatReportCardWhatsApp(options: {
   subjects?: SubjectRubricSummary[];
   totalPoints: number;
   overallRubric: string;
-  attendanceRate: number;
+  attendanceRate?: number;
   classTeacherComment?: string;
   reopeningDate?: string;
   schoolName?: string;
@@ -221,7 +220,6 @@ ${subjectsSection}
 📊 *PERFORMANCE SUMMARY:*
 🏆 *Total Points:* *${options.totalPoints} / 72*
 ⭐ *Overall Rubric:* *${options.overallRubric}*
-📈 *Term Attendance:* ${options.attendanceRate}% Regular
 
 💬 *CLASS TEACHER REMARKS:*
 _"${comment}"_
